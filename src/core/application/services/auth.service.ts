@@ -3,7 +3,11 @@ import { User } from "../../domain/entities/user.entity";
 import { UserRepository } from "../../infrastructure/database/mongodb/user.repository";
 import { CreateUserDto } from "../dto/create-user.dto";
 import { LoginUserDto } from "../dto/login.dto";
+import jwt from 'jsonwebtoken'
+import dotenv from 'dotenv'
+import RedisService from "../../../config/database/redis/redis.config";
 
+dotenv.config()
 export class AuthService{
     private userRepository = new UserRepository();
     
@@ -59,6 +63,31 @@ export class AuthService{
         const doesPasswordMatch = await User.comparePassword(loginUserDto.password,existingUserByUsername.password)
         if(!doesPasswordMatch){
             throw new HttpError(401,'Incorrect username or password!')
+        }
+        
+        //* Generate access token
+        const accessToken = jwt.sign(
+            {userId: existingUserByUsername.id, username: existingUserByUsername.username},
+            process.env.JWT_ACCESS_SECRET!,
+            {expiresIn: "6h"}
+            
+        )
+        //* Generate Refresh Token
+        const refreshToken = jwt.sign(
+            { userId: existingUserByUsername.id },
+            process.env.JWT_REFRESH_SECRET!,
+            { expiresIn: '7d' }
+        );
+        
+        //* Save the refresh token in Redis
+        const redisClient = RedisService.getInstance().getClient();
+        await redisClient.set(existingUserByUsername.id.toString(), refreshToken, {
+            EX: 60 * 60 * 24 * 7, //* 7 days expiration (matching the refresh token's expiration)
+        });
+        
+        return {
+            accessToken,
+            refreshToken
         }
     }
 }

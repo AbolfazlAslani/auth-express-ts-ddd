@@ -8,7 +8,8 @@ declare namespace NodeJS{
         MONGO_DB_NAME: string;
         
         //* ===================== JWT =====================
-        JWT_SECRET: string;
+        JWT_ACCESS_SECRET: string;
+        JWT_REFRESH_SECRET: string;
         
         //* ===================== REDIS =====================
         REDIS_HOST: string; 
