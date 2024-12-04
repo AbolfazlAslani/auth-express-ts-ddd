@@ -1,6 +1,5 @@
 // presentation/controllers/auth.controller.ts
 import express, { Request, Response, NextFunction } from 'express';
-import { HttpError } from '../../shared/httpError';
 import { AuthService } from '../../core/application/services/auth.service';
 import { CreateUserDto } from '../../core/application/dto/create-user.dto';
 import { LoginUserDto } from '../../core/application/dto/login.dto';
@@ -217,6 +216,9 @@ router.post('/refresh-token', async (req: Request, res: Response, next: NextFunc
         next(error); 
     }
 });
+
+
+
 
 
 export default router;

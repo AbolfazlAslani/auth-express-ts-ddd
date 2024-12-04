@@ -4,7 +4,9 @@
     "module": "commonjs",
     "outDir": "./dist",
     "strict": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "typeRoots": ["./node_modules/@types", "./src/@types"],
+    "types": ["express"]
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]
