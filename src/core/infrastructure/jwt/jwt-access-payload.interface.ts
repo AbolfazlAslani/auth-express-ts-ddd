@@ -1,4 +1,4 @@
-export interface IJwtAcessTokenPayloadDecoded {
+export interface IJwtAccessTokenPayloadDecoded {
     userId: string;
     username: string;
     iat: number;

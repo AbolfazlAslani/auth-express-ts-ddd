@@ -171,12 +171,12 @@ router.post('/refresh-token', async (req: Request, res: Response, next: NextFunc
         const refreshTokenDto = new RefreshTokenDto(refreshToken)
         
         // * Call AuthService refresh token method
-        const user = await authService.refreshToken(refreshTokenDto);
+        const result = await authService.refreshToken(refreshTokenDto);
 
-        //* Return response if user logs in successfully
+
         res.status(200).json({
             message: 'Token refreshed !',
-            user,
+            accessToken: result,
         });
     } catch (error) {
         next(error); 

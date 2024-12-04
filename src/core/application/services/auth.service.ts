@@ -9,12 +9,17 @@ import RedisService from "../../../config/database/redis/redis.config";
 import { RefreshTokenDto } from "../dto/refresh-token.dto";
 import { IJwtRefreshTokenPayloadDecoded } from "../../infrastructure/jwt/jwt-refresh-payload.interface";
 import { JwtService } from "../../infrastructure/jwt/jwt.service";
+import { RedisClientType } from "redis";
 
 dotenv.config()
 export class AuthService{
-    private userRepository = new UserRepository();
+    private jwtService: JwtService;
+    private userRepository: UserRepository 
     
-    
+    constructor(){
+        this.jwtService = new JwtService();
+        this.userRepository = new UserRepository()
+    }
     //* Register User
     public async register(createUserDto: CreateUserDto): Promise<User>{
         //* DTO Validation
@@ -68,11 +73,8 @@ export class AuthService{
             throw new HttpError(401,'Incorrect username or password!')
         }
         
-        //* Initiliaze JWT Service
-        const jwtService = new JwtService();
-        
         //* Generate access token
-        const accessToken = await jwtService.sign(
+        const accessToken = await this.jwtService.sign(
             {userId: existingUserByUsername.id, username: existingUserByUsername.username},
             {expiresIn: "6h"},
             process.env.JWT_ACCESS_SECRET!
@@ -86,7 +88,7 @@ export class AuthService{
             refreshToken = checkUserLogin;
         }else{
             //* create new refresh token
-            refreshToken = await jwtService.sign(
+            refreshToken = await this.jwtService.sign(
                 { userId: existingUserByUsername.id },
                 { expiresIn: '7d' },
                 process.env.JWT_REFRESH_SECRET!
@@ -109,12 +111,13 @@ export class AuthService{
     //* Check if user already logged in
     public async checkLogin(userId: string){
         const redisClient = RedisService.getInstance().getClient();
+
         return await redisClient.get(userId)
     }
     
     //* Refresh Token
     public async refreshToken(refreshTokenDto: RefreshTokenDto){
-    
+        
         //* Validate refresh token dto
         const {error} = RefreshTokenDto.validate(refreshTokenDto)
         if(error){
@@ -124,11 +127,22 @@ export class AuthService{
         const {refreshToken} = refreshTokenDto
         try {
             //* Verify refresh token
-            const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!) as IJwtRefreshTokenPayloadDecoded;
-            
+            const decoded = await this.jwtService.verify(refreshToken, process.env.JWT_REFRESH_SECRET!) as IJwtRefreshTokenPayloadDecoded;
+
             //* Retrieve refresh token from redis
-            const redisClient = RedisService.getInstance().getClient();
-            return await redisClient.get(decoded.userId)
+            const redisClient =RedisService.getInstance().getClient();
+            const refreshTokenExistence=  await redisClient.get(decoded.userId)
+            if(!refreshTokenExistence) throw new HttpError(400,"Invalid refresh token or expired");
+            
+            if(refreshTokenExistence === refreshToken){
+                const newAccessToken = await this.jwtService.sign(
+                    {userId: decoded.userId},
+                    {expiresIn: "6h"},
+                    process.env.JWT_ACCESS_SECRET!
+                )
+                return newAccessToken;
+            }
+            throw new HttpError(500, "Internal Server Error On Refresh Token")
 
         } catch (error) {
             throw new  HttpError(400,"Invalid refresh token or expired")
