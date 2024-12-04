@@ -1,5 +1,6 @@
 import { MongoClient, Db } from 'mongodb';
 import dotenv from 'dotenv';
+import logger from '../../../shared/winston.logger';
 
 dotenv.config();
 
@@ -27,15 +28,15 @@ class MongoDBService {
             if (!mongoUri) {
                 throw new Error('MONGO_DB_URI is not defined in .env');
             }
-
-            console.log('Connecting to MongoDB...');
+            
+            logger.info('Connecting to MongoDB...');
             this.client = new MongoClient(mongoUri);
             await this.client.connect();
             this.database = this.client.db(dbName);
 
-            console.log(`Connected to MongoDB database: ${dbName}`);
+            logger.info(`Connected to MongoDB database: ${dbName}`);
         } catch (error) {
-            console.error('Error connecting to MongoDB:', error);
+            logger.error('Error connecting to MongoDB:', error);
             throw error;
         }
     }
@@ -43,7 +44,7 @@ class MongoDBService {
     //* Get the database instance
     public getDatabase(): Db {
         if (!this.database) {
-            console.error('Database is not initialized. Ensure connect() is called first.');
+            logger.error('Database is not initialized. Ensure connect() is called first.');
             throw new Error('Database not initialized. Call connect() first.');
         }
         return this.database;
@@ -53,7 +54,7 @@ class MongoDBService {
     public async disconnect(): Promise<void> {
         if (this.client) {
             await this.client.close();
-            console.log('MongoDB connection closed');
+            logger.info('MongoDB connection closed');
         }
     }
 }

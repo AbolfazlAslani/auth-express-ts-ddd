@@ -1,5 +1,6 @@
 import { createClient, RedisClientType } from 'redis';
 import dotenv from "dotenv"
+import logger from '../../../shared/winston.logger';
 
 dotenv.config();
 class RedisService {
@@ -31,13 +32,13 @@ class RedisService {
             });
 
             this.client.on('error', (err) => {
-                console.error('Redis Client Error:', err);
+                logger.error('Redis Client Error:', err);
             });
 
             await this.client.connect();
-            console.log(`Connected to Redis at ${host}:${port}`);
+            logger.info(`Connected to Redis at ${host}:${port}`);
         } catch (error) {
-            console.error('Error connecting to Redis:', error);
+            logger.error('Error connecting to Redis:', error);
             throw error;
         }
     }
@@ -54,7 +55,7 @@ class RedisService {
     public async disconnect(): Promise<void> {
         if (this.client) {
             await this.client.quit();
-            console.log('Redis connection closed');
+            logger.info('Redis connection closed');
         }
     }
 }

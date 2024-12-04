@@ -6,6 +6,7 @@ import router from './presentation/routes/routes';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerOptions } from './config/swagger.config';
+import logger from './shared/winston.logger';
 
 //* load .env
 dotenv.config();
@@ -44,12 +45,12 @@ const startApp = async (): Promise<void> =>{
         //* ========= Start Server =========
         app.use(router)
         app.listen(PORT,()=>{
-            console.log(`Server is running on port : http://localhost:${PORT}`);
-            console.log(`Swagger Docs : http://localhost:${PORT}/api-docs`);
+            logger.info(`Server is running on port : http://localhost:${PORT}`);
+            logger.info(`Swagger Docs : http://localhost:${PORT}/api-docs`);
         })
 
     } catch (error) {
-        console.error("Error Starting The Application:", error);
+        logger.error("Error Starting The Application:", error);
         process.exit(1);
     }
 }
@@ -58,7 +59,7 @@ const startApp = async (): Promise<void> =>{
 
 //* Gracefull Shutdown
 process.on('SIGINT',async ()=>{
-    console.log("Shutting Down...");
+    logger.info("Shutting Down...");
     const mongoService = MongoDBService.getInstance();
     const redisService = RedisService.getInstance();
     
