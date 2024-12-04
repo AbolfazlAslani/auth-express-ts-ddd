@@ -9,7 +9,7 @@ export const swaggerOptions = {
       info: {
         title: 'Auth app , Express + Typescript + DDD',
         version: '1.0.0',
-        description: 'API documentation for the application',
+        description: 'This Api has been developed by Abolfazl Aslani',
       },
       servers: [
         {

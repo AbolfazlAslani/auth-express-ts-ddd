@@ -1,16 +1,11 @@
-import { RedisStore } from 'connect-redis';
 import dotenv from 'dotenv'
 import express, { Application } from 'express';
-import session from 'express-session';
-import { MongoClient } from 'mongodb';
-import { createClient } from 'redis';
 import MongoDBService from './config/database/mongodb/mongodb.config';
 import RedisService from './config/database/redis/redis.config';
 import router from './presentation/routes';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerOptions } from './config/swagger.config';
-import path from 'path'
 
 //* load .env
 dotenv.config();
@@ -23,14 +18,6 @@ const PORT = process.env.SERVER_PORT || 3000;
 
 //* Swagger Configuration
 const swaggerSpec = swaggerJSDoc(swaggerOptions);
-
-//* Redis Configuration
-const redisClient = createClient({
-    socket:{
-        host: process.env.REDIS_HOST,
-        port: parseInt(process.env.REDIS_PORT || "6379", 10)
-    }
-})
 
 
 //* Express Configuration
