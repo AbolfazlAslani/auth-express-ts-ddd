@@ -32,31 +32,12 @@ const redisClient = createClient({
     }
 })
 
-//* Redis Config For Session Store
-const redisStore = new RedisStore({
-    client: redisClient,
-    prefix: "myapp:sess:"
-})
 
 //* Express Configuration
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
 
-//* Session Management
-app.use(
-    session({
-        store: redisStore,
-        secret: process.env.SESSION_SECRET || "defaultSessionSecret",
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-            secure : false,
-            httpOnly : true,
-            maxAge: 1000 * 60 * 60 * 24 // 1 day
-        }
-    })
-)
 
 //* MongoDB And Redis + Server Connection
 const startApp = async (): Promise<void> =>{

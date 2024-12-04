@@ -3,6 +3,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import { HttpError } from '../../shared/httpError';
 import { AuthService } from '../../core/application/services/auth.service';
 import { CreateUserDto } from '../../core/application/dto/create-user.dto';
+import { LoginUserDto } from '../../core/application/dto/login.dto';
 
 const router = express.Router();
 const authService = new AuthService();
@@ -57,6 +58,44 @@ const authService = new AuthService();
 
 /**
  * @swagger
+ * /auth/login:
+ *   post:
+ *     summary: Log in an existing user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: 'johndoe'
+ *               password:
+ *                 type: string
+ *                 example: 'securepassword123'
+ *     responses:
+ *       200:
+ *         description: User logged in successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 'Logged in successfully!'
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Invalid username or password
+ *       500:
+ *         description: Internal server error
+ */
+
+/**
+ * @swagger
  * components:
  *   schemas:
  *     User:
@@ -83,7 +122,7 @@ const authService = new AuthService();
 router.post('/register', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { username, email, password } = req.body;
-
+        
         //* Create DTO
         const createUserDto = new CreateUserDto(username, email, password);
 
@@ -93,6 +132,27 @@ router.post('/register', async (req: Request, res: Response, next: NextFunction)
         //* Return response if user is created successfully
         res.status(201).json({
             message: 'User successfully created',
+            user,
+        });
+    } catch (error) {
+        next(error); 
+    }
+});
+
+//* login user route
+router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { username, password } = req.body;
+
+        //* Create DTO
+        const loginUserDto = new LoginUserDto(username, password);
+        
+        // * Call AuthService login method
+        const user = await authService.login(loginUserDto);
+
+        //* Return response if user logs in successfully
+        res.status(200).json({
+            message: 'Logged in successfully!',
             user,
         });
     } catch (error) {
