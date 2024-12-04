@@ -4,6 +4,7 @@ import { HttpError } from '../../shared/httpError';
 import { AuthService } from '../../core/application/services/auth.service';
 import { CreateUserDto } from '../../core/application/dto/create-user.dto';
 import { LoginUserDto } from '../../core/application/dto/login.dto';
+import { RefreshTokenDto } from '../../core/application/dto/refresh-token.dto';
 
 const router = express.Router();
 const authService = new AuthService();
@@ -153,6 +154,28 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
         //* Return response if user logs in successfully
         res.status(200).json({
             message: 'Logged in successfully!',
+            user,
+        });
+    } catch (error) {
+        next(error); 
+    }
+});
+
+
+//* refresh token route
+router.post('/refresh-token', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { refreshToken } = req.body;
+
+        //* Create DTO
+        const refreshTokenDto = new RefreshTokenDto(refreshToken)
+        
+        // * Call AuthService refresh token method
+        const user = await authService.refreshToken(refreshTokenDto);
+
+        //* Return response if user logs in successfully
+        res.status(200).json({
+            message: 'Token refreshed !',
             user,
         });
     } catch (error) {

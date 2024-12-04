@@ -6,6 +6,8 @@ import { LoginUserDto } from "../dto/login.dto";
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 import RedisService from "../../../config/database/redis/redis.config";
+import { RefreshTokenDto } from "../dto/refresh-token.dto";
+import { JwtRefreshTokenPayload } from "../../infrastructure/jwt/jwt-payload.interface";
 
 dotenv.config()
 export class AuthService{
@@ -45,8 +47,8 @@ export class AuthService{
     
     //* Login User
     public async login(loginUserDto: LoginUserDto){
+    
         //* Validate user login form
-        
         const {error} = LoginUserDto.validate(loginUserDto);
         
         if(error) {
@@ -65,6 +67,9 @@ export class AuthService{
             throw new HttpError(401,'Incorrect username or password!')
         }
         
+        //* If token not yet expired pass the old token
+        
+        
         //* Generate access token
         const accessToken = jwt.sign(
             {userId: existingUserByUsername.id, username: existingUserByUsername.username},
@@ -78,7 +83,6 @@ export class AuthService{
             process.env.JWT_REFRESH_SECRET!,
             { expiresIn: '7d' }
         );
-        
         //* Save the refresh token in Redis
         const redisClient = RedisService.getInstance().getClient();
         await redisClient.set(existingUserByUsername.id.toString(), refreshToken, {
@@ -89,5 +93,29 @@ export class AuthService{
             accessToken,
             refreshToken
         }
+    }
+    
+    //* Refresh Token
+    public async refreshToken(refreshTokenDto: RefreshTokenDto){
+    
+        //* Validate refresh token dto
+        const {error} = RefreshTokenDto.validate(refreshTokenDto)
+        if(error){
+            throw new HttpError(400,error.message)
+        }
+        
+        const {refreshToken} = refreshTokenDto
+        try {
+            //* Verify refresh token
+            const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!) as JwtRefreshTokenPayload;
+            
+            //* Retrieve refresh token from redis
+            const redisClient = RedisService.getInstance().getClient();
+            const redisToken = await redisClient.get(decoded.userId)
+
+        } catch (error) {
+            throw new  HttpError(400,"Invalid refresh token or expired")
+        }
+        
     }
 }

@@ -1,8 +1,11 @@
 import { ObjectId } from "mongodb";
 
 export abstract class BaseEntity {
-    constructor(
-        public id: string = new ObjectId().toString(),
-        public createdAt: Date = new Date()
-    ) {}
+    public id: ObjectId | string;
+    public createdAt: Date;
+
+    constructor(id: ObjectId | string = new ObjectId(), createdAt: Date = new Date()) {
+        this.id = id;
+        this.createdAt = createdAt;
+    }
 }

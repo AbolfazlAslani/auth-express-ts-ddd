@@ -1,17 +1,18 @@
 import Joi from "joi";
 import bcrypt from 'bcrypt'
 import { BaseEntity } from "./base.entity";
+import { ObjectId } from "mongodb";
 
 export class User extends BaseEntity{
     constructor(
+        
         public username: string,
         public email: string,
         public password: string,
+        id?: ObjectId | string,
+        createdAt?: Date
     ){
-        super()
-        this.username = username;
-        this.email = email;
-        this.password = password;
+        super(id, createdAt);
         
 
     }

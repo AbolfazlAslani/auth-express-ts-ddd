@@ -12,18 +12,20 @@ export class UserRepository implements IUserRepository {
         const collection = db.collection(this.collectionName);
         
         const userDocument = {
-            ...user,
-            createdAt: new Date()
+            username: user.username,
+            email: user.email,
+            password: user.password,
+            createdAt: user.createdAt,
         };
 
         const result = await collection.insertOne(userDocument);
 
-        const insertedUser = {
-            ...user,
-            id: result.insertedId.toString(),
-            createdAt: new Date(),
-        };
-        return insertedUser;
+        return new User(
+            user.username,
+            user.email,
+            user.password,
+            result.insertedId.toString() // Use insertedId from MongoDB response
+        );
     }
 
     //* Find user by ID
@@ -33,7 +35,7 @@ export class UserRepository implements IUserRepository {
         const result = await collection.findOne({ _id: new ObjectId(id) });
 
         if (result) {
-            return new User(result.username, result.email, result.password); //* Map DB response to User entity
+            return new User(result.username, result.email, result.password,result._id.toString()); //* Map DB response to User entity
         }
         return null;
     }
@@ -45,7 +47,7 @@ export class UserRepository implements IUserRepository {
         const result = await collection.findOne({ email });
 
         if (result) {
-            return new User(result.username, result.email, result.password); //* Map DB response to User entity
+            return new User(result.username, result.email, result.password,result._id.toString()); //* Map DB response to User entity
         }
         return null;
     }
@@ -57,7 +59,7 @@ export class UserRepository implements IUserRepository {
         const result = await collection.findOne({ username });
 
         if (result) {
-            return new User(result.username, result.email, result.password); //* Map DB response to User entity
+            return new User(result.username, result.email, result.password,result._id.toString()); //* Map DB response to User entity
         }
         return null;
     }
