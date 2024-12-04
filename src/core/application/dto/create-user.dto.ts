@@ -19,7 +19,7 @@ export class CreateUserDto {
             password: Joi.string()
                 .min(8)
                 .max(32)
-                .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])')).message("It should be strong password!")
+                .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])')).message("Password should be strong!")
                 .required(),
         });
 

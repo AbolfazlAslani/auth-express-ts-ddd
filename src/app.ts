@@ -6,12 +6,11 @@ import { MongoClient } from 'mongodb';
 import { createClient } from 'redis';
 import MongoDBService from './config/database/mongodb/mongodb.config';
 import RedisService from './config/database/redis/redis.config';
-import { User } from './core/domain/entities/user.entity';
-import { UserRepository } from './core/infrastructure/database/mongodb/user.repository';
-import { AuthService } from './core/application/services/auth.service';
-import { CreateUserDto } from './core/application/dto/create-user.dto';
-import router from './presenation/routes';
-
+import router from './presentation/routes';
+import swaggerJSDoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerOptions } from './config/swagger.config';
+import path from 'path'
 
 //* load .env
 dotenv.config();
@@ -19,11 +18,11 @@ dotenv.config();
 
 //* initialize the app
 const app: Application = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.SERVER_PORT || 3000;
 
-//* MongoDB Configuration
-let mongoClient: MongoClient;
 
+//* Swagger Configuration
+const swaggerSpec = swaggerJSDoc(swaggerOptions);
 
 //* Redis Configuration
 const redisClient = createClient({
@@ -71,10 +70,14 @@ const startApp = async (): Promise<void> =>{
         const redisService = RedisService.getInstance();
         await redisService.connect();
         
+        //* ========= Swagger UI =========
+        app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+        
         //* ========= Start Server =========
         app.use(router)
         app.listen(PORT,()=>{
             console.log(`Server is running on port : http://localhost:${PORT}`);
+            console.log(`Swagger Docs : http://localhost:${PORT}/api-docs`);
         })
 
     } catch (error) {
