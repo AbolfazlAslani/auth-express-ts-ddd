@@ -111,6 +111,4 @@ The project follows **Domain-Driven Design (DDD)**, and the structure is organiz
 - **Docker**: Containerization platform used for running Redis and MongoDB services.
 - **JWT (JSON Web Tokens)**: For secure user authentication using access and refresh tokens.
 
-## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
