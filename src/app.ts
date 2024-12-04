@@ -4,6 +4,8 @@ import express, { Application } from 'express';
 import session from 'express-session';
 import { MongoClient } from 'mongodb';
 import { createClient } from 'redis';
+import MongoDBService from './config/database/mongodb/mongodb.config';
+import RedisService from './config/database/redis/redis.config';
 
 
 //* load .env
@@ -55,13 +57,13 @@ app.use(
 const startApp = async (): Promise<void> =>{
     try {
         //* ========= MongoDB Connection =========
-        mongoClient = new MongoClient(process.env.MONGO_DB_URI!)
-        await mongoClient.connect();
-        console.log("Conncted To MongoDB");
+        const mongoService = MongoDBService.getInstance();
+        await mongoService.connect();
+        
         
         //* ========= Redis Connection =========
-        await redisClient.connect();
-        console.log("Connected To Redis");
+        const redisService = RedisService.getInstance();
+        await redisService.connect();
         
         //* ========= Start Server =========
         
@@ -75,5 +77,18 @@ const startApp = async (): Promise<void> =>{
         process.exit(1);
     }
 }
+
+//* Gracefull Shutdown
+process.on('SIGINT',async ()=>{
+    console.log("Shutting Down...");
+    const mongoService = MongoDBService.getInstance();
+    const redisService = RedisService.getInstance();
+    
+    await Promise.all([
+        mongoService.disconnect(),
+        redisService.disconnect(),
+    ])
+    process.exit(0);
+})
 
 startApp();
