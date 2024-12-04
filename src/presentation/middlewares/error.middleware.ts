@@ -7,6 +7,7 @@ export const errorHandler: ErrorRequestHandler = (err, req: Request, res: Respon
         res.status(err.statusCode).json({ message: err.message });
     } else {
         //* If its an unexpected error
+        console.log(err);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };

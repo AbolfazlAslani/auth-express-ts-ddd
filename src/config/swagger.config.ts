@@ -28,5 +28,5 @@ export const swaggerOptions = {
     }
     
   },
-  apis: [path.join(__dirname, '..', 'presentation', 'controllers', '*.ts')],
+  apis: [path.join(__dirname, '..', 'presentation', 'controllers',"**" ,'*.ts')],
 };

@@ -2,7 +2,7 @@ import dotenv from 'dotenv'
 import express, { Application } from 'express';
 import MongoDBService from './config/database/mongodb/mongodb.config';
 import RedisService from './config/database/redis/redis.config';
-import router from './presentation/routes';
+import router from './presentation/routes/routes';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerOptions } from './config/swagger.config';
