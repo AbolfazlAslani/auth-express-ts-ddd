@@ -10,6 +10,7 @@ import { User } from './core/domain/entities/user.entity';
 import { UserRepository } from './core/infrastructure/database/mongodb/user.repository';
 import { AuthService } from './core/application/services/auth.service';
 import { CreateUserDto } from './core/application/dto/create-user.dto';
+import router from './presenation/routes';
 
 
 //* load .env
@@ -42,6 +43,7 @@ const redisStore = new RedisStore({
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
+
 //* Session Management
 app.use(
     session({
@@ -70,19 +72,18 @@ const startApp = async (): Promise<void> =>{
         await redisService.connect();
         
         //* ========= Start Server =========
+        app.use(router)
         app.listen(PORT,()=>{
             console.log(`Server is running on port : http://localhost:${PORT}`);
         })
 
-        const authService = new AuthService();
-        const userDto = new CreateUserDto("abolfazl","aslaniabolfazl86@gmail.com","151515")
-        const result = await authService.register(userDto);
-        console.log(result);
     } catch (error) {
         console.error("Error Starting The Application:", error);
         process.exit(1);
     }
 }
+
+
 
 //* Gracefull Shutdown
 process.on('SIGINT',async ()=>{

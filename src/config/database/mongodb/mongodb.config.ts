@@ -1,17 +1,14 @@
 import { MongoClient, Db } from 'mongodb';
-import dotenv from 'dotenv'
+import dotenv from 'dotenv';
 
 dotenv.config();
-
 
 class MongoDBService {
     private static instance: MongoDBService;
     private client!: MongoClient; 
     private database!: Db; 
 
-    private constructor() {
-        
-    }
+    private constructor() {}
 
     //* Get the instance
     public static getInstance(): MongoDBService {
@@ -31,6 +28,7 @@ class MongoDBService {
                 throw new Error('MONGO_DB_URI is not defined in .env');
             }
 
+            console.log('Connecting to MongoDB...');
             this.client = new MongoClient(mongoUri);
             await this.client.connect();
             this.database = this.client.db(dbName);
@@ -45,6 +43,7 @@ class MongoDBService {
     //* Get the database instance
     public getDatabase(): Db {
         if (!this.database) {
+            console.error('Database is not initialized. Ensure connect() is called first.');
             throw new Error('Database not initialized. Call connect() first.');
         }
         return this.database;
